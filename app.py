@@ -64,7 +64,7 @@ def predict():
             'sex_M': 0             
         }
 
-        data_df = pd.DataFrame([[data_dict]], columns=expected_columns)
+        data_df = pd.DataFrame([data_dict], columns=expected_columns)
         
         app.logger.debug(f'DataFrame creado: {data_df}')
         
