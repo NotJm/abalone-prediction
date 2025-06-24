@@ -58,7 +58,6 @@ def predict():
             'viscera_wt': 0,       
             'shell_wt': shell_wt,
             'rings': rings,
-            'age': 0,             
             'sex_F': 0,            
             'sex_I': 0,
             'sex_M': 0             
