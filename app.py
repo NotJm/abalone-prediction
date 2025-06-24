@@ -82,6 +82,8 @@ def predict():
         
         # La predicción puede ser un array, tomar el primer valor
         edad_estimada = float(prediction[0])
+        
+        edad_estimada = round(edad_estimada, 1)
                 
         app.logger.debug(f'Predicción de edad: {edad_estimada}')
 
