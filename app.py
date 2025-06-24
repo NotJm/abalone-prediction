@@ -71,7 +71,9 @@ def predict():
         data_scaled = scaler.transform(data_df)
         app.logger.debug(f'Datos escalados: {data_scaled}')
         
-        X = data_scaled[features]
+        data_scaled_df = pd.DataFrame(data_scaled, columns=expected_columns)
+        
+        X = data_scaled_df[features]
         
         app.logger.debug(f'Datos seleccionados:{X}')
 
