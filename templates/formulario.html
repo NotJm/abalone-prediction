@@ -3,37 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Predictor de Edad de Abalones</title>
+  <title>Predictor de Edad de Abalones - IA Avanzada</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            'ocean-blue': '#0ea5e9',
-            'ocean-dark': '#0c4a6e',
-            'ocean-light': '#e0f2fe'
+            'primary': '#1e40af',
+            'primary-dark': '#1e3a8a',
+            'primary-light': '#3b82f6',
+            'accent': '#06b6d4',
+            'accent-dark': '#0891b2',
+            'surface': '#f8fafc',
+            'surface-dark': '#f1f5f9'
+          },
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', 'sans-serif']
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'pulse-slow': 'pulse 3s infinite'
           }
         }
       }
     }
   </script>
   <style>
-    .ocean-pattern {
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230ea5e9' fill-opacity='0.05'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm0 0c0 11.046 8.954 20 20 20s20-8.954 20-20-8.954-20-20-20-20 8.954-20 20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .input-focus {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .input-focus:focus {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15), 0 4px 6px -2px rgba(59, 130, 246, 0.05);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #1e40af 0%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
     }
   </style>
   <script>
     function predecirEdad(event) {
       event.preventDefault();
       
-      // Show loading state
       const submitBtn = document.getElementById('submitBtn');
       const resultado = document.getElementById('resultado');
       const loadingSpinner = document.getElementById('loadingSpinner');
+      const form = document.getElementById('formulario');
       
+      // Animate form submission
+      form.classList.add('opacity-75', 'pointer-events-none');
       submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
       loadingSpinner.classList.remove('hidden');
       resultado.innerHTML = '';
       
@@ -45,14 +89,14 @@
 
       // Validate inputs
       if (!rings || !whole_wt || !shell_wt || !shucked_wt || !diameter) {
-        showError('Por favor, completa todos los campos.');
-        resetButton();
+        showError('Por favor, completa todos los campos requeridos.');
+        resetForm();
         return;
       }
 
       if (isNaN(rings) || isNaN(whole_wt) || isNaN(shell_wt) || isNaN(shucked_wt) || isNaN(diameter)) {
-        showError('Por favor, ingresa valores numéricos válidos.');
-        resetButton();
+        showError('Por favor, ingresa valores numéricos válidos en todos los campos.');
+        resetForm();
         return;
       }
 
@@ -66,245 +110,354 @@
       .then(response => response.json())
       .then(data => {
         if (data.error) {
-          showError('Error: ' + data.error);
+          showError('Error en el procesamiento: ' + data.error);
         } else {
-          showSuccess(`La edad estimada del abulón es: ${data.edad_estimada} años`);
+          showSuccess(data.edad_estimada);
         }
       })
       .catch(error => {
-        showError('Error en la conexión. Por favor, intenta nuevamente.');
+        showError('Error de conexión. Verifique su conexión a internet e intente nuevamente.');
         console.error('Error:', error);
       })
       .finally(() => {
-        resetButton();
+        resetForm();
       });
     }
 
     function showError(message) {
       const resultado = document.getElementById('resultado');
       resultado.innerHTML = `
-        <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
-          <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-red-700 font-medium">${message}</span>
+        <div class="animate-slide-up bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-6 shadow-lg">
+          <div class="flex items-center space-x-4">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-red-800">Error de Validación</h3>
+              <p class="text-red-700 mt-1">${message}</p>
+            </div>
+          </div>
         </div>
       `;
     }
 
-    function showSuccess(message) {
+    function showSuccess(edad) {
       const resultado = document.getElementById('resultado');
       resultado.innerHTML = `
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-          <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-green-700 font-medium">${message}</span>
+        <div class="animate-slide-up glass-effect rounded-3xl p-8 shadow-2xl border border-white/20">
+          <div class="text-center">
+            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg floating-element">
+              <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold gradient-text mb-3">Predicción Completada</h3>
+            <div class="bg-gradient-to-r from-primary to-accent rounded-2xl p-6 mb-4">
+              <p class="text-white text-lg font-medium mb-2">Edad Estimada del Abulón</p>
+              <p class="text-4xl font-bold text-white">${edad} años</p>
+            </div>
+            <p class="text-gray-600 text-sm">Predicción generada usando redes neuronales avanzadas</p>
+          </div>
         </div>
       `;
     }
 
-    function resetButton() {
+    function resetForm() {
       const submitBtn = document.getElementById('submitBtn');
       const loadingSpinner = document.getElementById('loadingSpinner');
+      const form = document.getElementById('formulario');
       
+      form.classList.remove('opacity-75', 'pointer-events-none');
       submitBtn.disabled = false;
-      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       loadingSpinner.classList.add('hidden');
     }
 
     function clearForm() {
       document.getElementById('formulario').reset();
       document.getElementById('resultado').innerHTML = '';
+      
+      // Add subtle animation to form clear
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach((input, index) => {
+        setTimeout(() => {
+          input.style.transform = 'scale(0.98)';
+          setTimeout(() => {
+            input.style.transform = 'scale(1)';
+          }, 100);
+        }, index * 50);
+      });
     }
+
+    // Add floating animation to elements on load
+    document.addEventListener('DOMContentLoaded', function() {
+      const elements = document.querySelectorAll('.animate-fade-in');
+      elements.forEach((el, index) => {
+        setTimeout(() => {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+    });
   </script>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 ocean-pattern">
-  <div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="text-center mb-12">
-      <div class="inline-flex items-center justify-center w-20 h-20 bg-ocean-blue rounded-full mb-6 shadow-lg">
-        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans">
+  <!-- Background Pattern -->
+  <div class="absolute inset-0 opacity-30">
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, #3b82f6 0%, transparent 50%), radial-gradient(circle at 75% 75%, #06b6d4 0%, transparent 50%);"></div>
+  </div>
+  
+  <div class="relative z-10 container mx-auto px-4 py-12">
+    <!-- Header Section -->
+    <div class="text-center mb-16 animate-fade-in" style="opacity: 0; transform: translateY(20px);">
+      <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-3xl mb-8 shadow-2xl floating-element">
+        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.82.62-3.49 1.64-4.83L9 11.5c.28.28.72.28 1 0L12 9.5l2 2c.28.28.72.28 1 0l3.36-4.33C19.38 8.51 20 10.18 20 12c0 4.41-3.59 8-8 8z"/>
         </svg>
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-        Predictor de Edad de Abalones
+      <h1 class="text-5xl md:text-6xl font-bold gradient-text mb-6 leading-tight">
+        Predictor de Edad<br>de Abalones
       </h1>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        Ingresa las características físicas del abulón y obtén una estimación precisa de su edad usando redes neuronales
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        Tecnología de inteligencia artificial avanzada para la estimación precisa de edad mediante análisis de características morfológicas
       </p>
+      <div class="flex items-center justify-center mt-6 space-x-2 text-sm text-gray-500">
+        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <span>Sistema Neural Activo</span>
+      </div>
     </div>
 
-    <!-- Main Card -->
-    <div class="max-w-4xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <!-- Main Form Card -->
+    <div class="max-w-5xl mx-auto animate-fade-in" style="opacity: 0; transform: translateY(20px);">
+      <div class="glass-effect rounded-3xl shadow-2xl overflow-hidden">
         <!-- Card Header -->
-        <div class="bg-gradient-to-r from-ocean-blue to-cyan-500 px-8 py-6">
-          <h2 class="text-2xl font-semibold text-white flex items-center">
-            <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-            </svg>
-            Características del Abulón
-          </h2>
-          <p class="text-blue-100 mt-2">Completa todas las medidas para obtener una predicción precisa</p>
+        <div class="bg-gradient-to-r from-primary via-primary-light to-accent px-10 py-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-3xl font-bold text-white mb-2">Análisis Morfológico</h2>
+              <p class="text-blue-100 text-lg">Ingrese las características físicas del espécimen</p>
+            </div>
+            <div class="hidden md:block">
+              <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Form -->
-        <form id="formulario" onsubmit="predecirEdad(event)" class="p-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Form Content -->
+        <form id="formulario" onsubmit="predecirEdad(event)" class="p-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <!-- Rings Input -->
-            <div class="space-y-2">
-              <label for="rings" class="block text-sm font-semibold text-gray-700 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-ocean-blue" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/>
-                </svg>
-                Número de Anillos
+            <div class="space-y-3">
+              <label for="rings" class="block text-sm font-semibold text-gray-800 flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center mr-3">
+                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/>
+                  </svg>
+                </div>
+                Número de Anillos de Crecimiento
               </label>
               <input 
                 type="number" 
                 id="rings" 
                 name="rings" 
-                step="1"
-                min="0"
-                placeholder="Ej: 15"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean-blue focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400"
+                step="any"
+                placeholder="Ejemplo: 15"
+                class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-gray-800 placeholder-gray-400 text-lg input-focus"
                 required
               >
+              <p class="text-xs text-gray-500 ml-2">Indicador principal de edad del abulón</p>
             </div>
 
             <!-- Diameter Input -->
-            <div class="space-y-2">
-              <label for="diameter" class="block text-sm font-semibold text-gray-700 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-ocean-blue" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                </svg>
-                Diámetro (mm)
+            <div class="space-y-3">
+              <label for="diameter" class="block text-sm font-semibold text-gray-800 flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center mr-3">
+                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                  </svg>
+                </div>
+                Diámetro Perpendicular (mm)
               </label>
               <input 
                 type="number" 
                 id="diameter" 
                 name="diameter" 
-                step="0.001"
-                min="0"
-                placeholder="Ej: 0.455"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean-blue focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400"
+                step="any"
+                placeholder="Ejemplo: 0.455"
+                class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-gray-800 placeholder-gray-400 text-lg input-focus"
                 required
               >
+              <p class="text-xs text-gray-500 ml-2">Medida perpendicular a la longitud</p>
             </div>
 
             <!-- Whole Weight Input -->
-            <div class="space-y-2">
-              <label for="whole_wt" class="block text-sm font-semibold text-gray-700 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-ocean-blue" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/>
-                </svg>
-                Peso Total (g)
+            <div class="space-y-3">
+              <label for="whole_wt" class="block text-sm font-semibold text-gray-800 flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center mr-3">
+                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/>
+                  </svg>
+                </div>
+                Peso Total del Espécimen (g)
               </label>
               <input 
                 type="number" 
                 id="whole_wt" 
                 name="whole_wt" 
-                step="0.001"
-                min="0"
-                placeholder="Ej: 0.514"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean-blue focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400"
+                step="any"
+                placeholder="Ejemplo: 0.514"
+                class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-gray-800 placeholder-gray-400 text-lg input-focus"
                 required
               >
+              <p class="text-xs text-gray-500 ml-2">Peso completo incluyendo concha</p>
             </div>
 
             <!-- Shucked Weight Input -->
-            <div class="space-y-2">
-              <label for="shucked_wt" class="block text-sm font-semibold text-gray-700 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-ocean-blue" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                Peso sin Concha (g)
+            <div class="space-y-3">
+              <label for="shucked_wt" class="block text-sm font-semibold text-gray-800 flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center mr-3">
+                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                Peso de la Carne (g)
               </label>
               <input 
                 type="number" 
                 id="shucked_wt" 
                 name="shucked_wt" 
-                step="0.001"
-                min="0"
-                placeholder="Ej: 0.2245"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean-blue focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400"
+                step="any"
+                placeholder="Ejemplo: 0.2245"
+                class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-gray-800 placeholder-gray-400 text-lg input-focus"
                 required
               >
+              <p class="text-xs text-gray-500 ml-2">Peso del abulón sin la concha</p>
             </div>
 
             <!-- Shell Weight Input -->
-            <div class="space-y-2 md:col-span-2">
-              <label for="shell_wt" class="block text-sm font-semibold text-gray-700 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-ocean-blue" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                </svg>
+            <div class="space-y-3 lg:col-span-2">
+              <label for="shell_wt" class="block text-sm font-semibold text-gray-800 flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
+                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                  </svg>
+                </div>
                 Peso de la Concha (g)
               </label>
               <input 
                 type="number" 
                 id="shell_wt" 
                 name="shell_wt" 
-                step="0.001"
-                min="0"
-                placeholder="Ej: 0.101"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ocean-blue focus:border-transparent transition-all duration-200 text-gray-700 placeholder-gray-400"
+                step="any"
+                placeholder="Ejemplo: 0.101"
+                class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-gray-800 placeholder-gray-400 text-lg input-focus"
                 required
               >
+              <p class="text-xs text-gray-500 ml-2">Peso únicamente de la estructura calcárea</p>
             </div>
           </div>
 
-          <!-- Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-6 pt-8 border-t border-gray-200">
             <button 
               type="submit" 
               id="submitBtn"
-              class="flex-1 bg-gradient-to-r from-ocean-blue to-cyan-500 text-white font-semibold py-3 px-6 rounded-lg hover:from-ocean-dark hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2"
+              class="flex-1 bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-8 rounded-2xl hover:shadow-2xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary/30 transition-all duration-300 flex items-center justify-center space-x-3 text-lg"
             >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
               </svg>
-              <span>Predecir Edad</span>
+              <span>Analizar y Predecir Edad</span>
             </button>
             
             <button 
               type="button" 
               onclick="clearForm()"
-              class="flex-1 sm:flex-none bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center space-x-2"
+              class="sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-4 px-8 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-300/30 transition-all duration-300 flex items-center justify-center space-x-3 text-lg"
             >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 6h16v2H4zm2-4h8v2H6zm1.5 9L10 13.5 8.5 15 10 16.5 8.5 18H10v2H8.5L10 21.5 8.5 23H6.5L8 21.5 6.5 20H8v-2H6.5L8 16.5 6.5 15H8v-2H6.5z"/>
               </svg>
-              <span>Limpiar</span>
+              <span>Limpiar Formulario</span>
             </button>
           </div>
 
-          <!-- Loading Spinner -->
-          <div id="loadingSpinner" class="hidden flex items-center justify-center py-4">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-blue"></div>
-            <span class="ml-3 text-gray-600">Analizando características...</span>
+          <!-- Loading State -->
+          <div id="loadingSpinner" class="hidden flex items-center justify-center py-8">
+            <div class="flex items-center space-x-4">
+              <div class="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent"></div>
+              <div class="text-lg text-gray-600 font-medium">Procesando análisis neural...</div>
+            </div>
           </div>
         </form>
       </div>
 
-      <!-- Results -->
-      <div id="resultado" class="mt-6"></div>
+      <!-- Results Section -->
+      <div id="resultado" class="mt-8"></div>
 
-      <!-- Info Card -->
-      <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <div class="flex items-start space-x-3">
-          <svg class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-          </svg>
-          <div>
-            <h3 class="font-semibold text-blue-800 mb-2">Información sobre las medidas</h3>
-            <ul class="text-blue-700 text-sm leading-relaxed space-y-1">
-              <li><strong>Anillos:</strong> Número de anillos de crecimiento (indicador principal de edad)</li>
-              <li><strong>Diámetro:</strong> Diámetro perpendicular a la longitud en mm</li>
-              <li><strong>Peso Total:</strong> Peso completo del abulón en gramos</li>
-              <li><strong>Peso sin Concha:</strong> Peso de la carne del abulón en gramos</li>
-              <li><strong>Peso de la Concha:</strong> Peso únicamente de la concha en gramos</li>
-            </ul>
+      <!-- Information Panel -->
+      <div class="mt-12 glass-effect rounded-3xl p-8 shadow-xl animate-fade-in" style="opacity: 0; transform: translateY(20px);">
+        <div class="flex items-start space-x-6">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold gradient-text mb-4">Guía de Mediciones Científicas</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <div class="space-y-3">
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-semibold text-gray-800">Anillos de Crecimiento</p>
+                    <p class="text-sm">Estructuras concéntricas que indican períodos de crecimiento anual</p>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-semibold text-gray-800">Diámetro Perpendicular</p>
+                    <p class="text-sm">Medida transversal máxima del espécimen en milímetros</p>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-semibold text-gray-800">Peso Total</p>
+                    <p class="text-sm">Masa completa del abulón incluyendo todas las estructuras</p>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-semibold text-gray-800">Peso de la Carne</p>
+                    <p class="text-sm">Masa del tejido blando extraído de la concha</p>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-semibold text-gray-800">Peso de la Concha</p>
+                    <p class="text-sm">Masa de la estructura calcárea protectora</p>
+                  </div>
+                </div>
+                <div class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                  <p class="text-sm text-blue-800 font-medium">💡 Precisión óptima con mediciones exactas</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

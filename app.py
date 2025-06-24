@@ -57,11 +57,8 @@ def predict():
         prediction = model.predict(data_scaled)
         
         # La predicción puede ser un array, tomar el primer valor
-        edad_estimada = float(prediction[0]) if hasattr(prediction, '__len__') else float(prediction)
-        
-        # Redondear a 1 decimal para mejor presentación
-        edad_estimada = round(edad_estimada, 1)
-        
+        edad_estimada = float(prediction[0])
+                
         app.logger.debug(f'Predicción de edad: {edad_estimada}')
 
         # Devolver la predicción como respuesta JSON
