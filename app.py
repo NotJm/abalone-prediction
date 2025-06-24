@@ -42,19 +42,42 @@ def predict():
         shucked_wt = float(request.form['shucked_wt'])
         diameter = float(request.form['diameter'])
 
-        # Crear un DataFrame con los datos en el orden correcto
-        # El orden debe coincidir con el orden usado durante el entrenamiento
-        data_df = pd.DataFrame([[rings, whole_wt, shell_wt, shucked_wt, diameter]], 
-                              columns=['rings', 'whole_wt', 'shell_wt', 'shucked_wt', 'diameter'])
+        expected_columns: list[str] = [
+            'length', 'diameter', 'height', 'whole_wt', 'shucked_wt', 
+            'viscera_wt', 'shell_wt', 'rings', 'age', 'sex_F', 'sex_I', 'sex_M'
+        ]
+        
+        features: list[str] = ['rings', 'whole_wt', 'shell_wt', 'shucked_wt', 'diameter']
+
+        data_dict: dict = {
+            'length': 0,           
+            'diameter': diameter,
+            'height': 0,          
+            'whole_wt': whole_wt,
+            'shucked_wt': shucked_wt,
+            'viscera_wt': 0,       
+            'shell_wt': shell_wt,
+            'rings': rings,
+            'age': 0,             
+            'sex_F': 0,            
+            'sex_I': 0,
+            'sex_M': 0             
+        }
+
+        data_df = pd.DataFrame([[data_dict]], columns=expected_columns)
         
         app.logger.debug(f'DataFrame creado: {data_df}')
         
         # Escalar los datos usando el scaler entrenado
         data_scaled = scaler.transform(data_df)
         app.logger.debug(f'Datos escalados: {data_scaled}')
+        
+        X = data_scaled[features]
+        
+        app.logger.debug(f'Datos seleccionados:{X}')
 
         # Realizar predicción con el modelo de red neuronal
-        prediction = model.predict(data_scaled)
+        prediction = model.predict(X)
         
         # La predicción puede ser un array, tomar el primer valor
         edad_estimada = float(prediction[0])
