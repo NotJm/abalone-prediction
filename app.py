@@ -44,7 +44,7 @@ def predict():
 
         expected_columns: list[str] = [
             'length', 'diameter', 'height', 'whole_wt', 'shucked_wt', 
-            'viscera_wt', 'shell_wt', 'rings', 'age', 'sex_F', 'sex_I', 'sex_M'
+            'viscera_wt', 'shell_wt', 'rings', 'sex_F', 'sex_I', 'sex_M'
         ]
         
         features: list[str] = ['rings', 'whole_wt', 'shell_wt', 'shucked_wt', 'diameter']
